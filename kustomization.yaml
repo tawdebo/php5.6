@@ -1,0 +1,8 @@
+secretGenerator:
+- name: mysql-pass
+  namespace: moudforo
+  literals:
+  - password=YOUR_PASSWORD
+resources:
+  - mysql-app.yaml
+  - php5app-deploy.yaml
