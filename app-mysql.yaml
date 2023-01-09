@@ -1,0 +1,70 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-mysql
+  namespace: default
+  labels:
+    app: app-deploy
+spec:
+  ports:
+    - port: 3306
+  selector:
+    app: app-deploy
+    tier: mysql
+  clusterIP: None
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pvc
+  namespace: default
+  labels:
+    app: app-deploy
+spec:
+  storageClassName: nfs
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-mysql
+  namespace: default
+  labels:
+    app: app-deploy
+spec:
+  selector:
+    matchLabels:
+      app: app-deploy
+      tier: mysql
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: foro-deploy
+        tier: mysql
+    spec:
+      securityContext:
+        runAsUser: 999
+        fsGroup: 999
+      containers:
+      - image: mysql:5.7.40
+        name: mysql
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mysql-pass
+        ports:
+        - containerPort: 3306
+        volumeMounts:
+        - name: mysql-foro
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-foro
+        persistentVolumeClaim:
+          claimName: mysql-pvc
