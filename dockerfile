@@ -8,3 +8,4 @@ RUN docker-php-ext-configure gd --with-jpeg=/usr/include/ --with-freetype=/usr/i
 RUN docker-php-ext-install gd
 RUN docker-php-ext-install zip
 RUN docker-php-ext-install mysqli pdo pdo_mysql pdo_pgsql
+COPY ./apache2.conf /etc/apache2/
